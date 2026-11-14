@@ -1,0 +1,110 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Scholars Model High School</title>
+<link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#12355b"><link rel="icon" type="image/png" sizes="48x48" href="icons/logo-48.png"><link rel="apple-touch-icon" href="icons/app-apple-180.png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Scholars Model High School"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<style>
+*{box-sizing:border-box}body{margin:0;font:16px system-ui,sans-serif;background:#f3f5f9;color:#111}
+header{display:flex;justify-content:space-between;align-items:center;padding:12px 14px;background:#12355b;color:#fff;position:sticky;top:0;z-index:5}
+main{padding:12px;max-width:560px;margin:auto}.card{background:#fff;border-radius:12px;padding:14px;margin:0 0 12px;box-shadow:0 1px 3px #0002}
+h3{margin:0 0 8px;font-size:16px}input,select,textarea,button{font:inherit;padding:10px;border-radius:8px;border:1px solid #bbb;width:100%;margin:4px 0}
+button{background:#12355b;color:#fff;border:0;cursor:pointer;width:auto;padding:10px 14px}button.on{background:#1a8a4a}button:disabled{opacity:.45}
+.row{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:8px 0;border-top:1px solid #eee}.row div{display:flex;gap:4px}.row button{padding:8px 11px}
+small,.muted{color:#667}#bn{position:fixed;left:10px;right:10px;top:58px;background:#1a8a4a;color:#fff;padding:12px;border-radius:10px;z-index:9;display:none;font-weight:600}#bn.err{background:#b3261e}
+.tag.bad{background:#fde8e8!important;color:#9b1c1c!important}.tag.mid{background:#fff4d6!important;color:#7a5200!important}.tag.none{background:#eee!important;color:#555!important}.tag{display:inline-block;padding:2px 9px;border-radius:99px;background:#e6f4ea;color:#14602f;font-size:13px}
+#slips:not(:empty){position:fixed;inset:0;background:#fff;overflow:auto;z-index:20;padding:14px}.slipgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px}
+.slip{border:1.5px dashed #555;padding:12px;border-radius:8px;font-size:14px;line-height:1.55;break-inside:avoid;background:#fff}.bar{background:#fff7d6;padding:10px;border-radius:8px;margin-bottom:10px}
+@media print{.noprint{display:none!important}#app,#bn{display:none!important}#slips:not(:empty){position:static}}
+</style></head><body>
+<div id="bn"></div><div id="app"></div><div id="slips"></div>
+<script src="config.js"></script>
+<script src="vendor/supabase.js"></script>
+<script>
+const SB_URL=window.APP_CONFIG.SUPABASE_URL,SB_KEY=window.APP_CONFIG.SUPABASE_PUBLISHABLE_KEY;
+const sb=supabase.createClient(SB_URL,SB_KEY);
+const $=s=>document.querySelector(s),esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const today=()=>new Date(Date.now()-new Date().getTimezoneOffset()*6e4).toISOString().slice(0,10);
+const SL={Present:'P',Absent:'A',Late:'Lt',Leave:'Lv'};let rtState='○';let me=null,D={st:[],at:[],fe:[],no:[],di:[],fi:[],cl:[],lg:[]},LQ='',chan=null,bt;
+function banner(m,err){const b=$('#bn');b.textContent=m;b.className=err?'err':'';b.style.display='block';clearTimeout(bt);bt=setTimeout(()=>b.style.display='none',err?9000:6000)}
+async function run(p){const{error}=await p;if(error)banner(error.message,1);else load()}
+async function boot(){const{data}=await sb.auth.getSession();if(data.session)await enter(data.session.user);else render()}
+async function enter(u){const{data,error}=await sb.from('profiles').select('*').eq('id',u.id).single();
+ if(error||!data){await sb.auth.signOut();me=null;render();return banner('This login has no school profile yet.',1)}
+ me=data;await load();listen()}
+async function load(){if(!me)return;
+ const isAd=me.role==='admin'||me.role==='manager';
+ const[st,at,fe,no,di,fi,cl,lg]=await Promise.all([
+  sb.from('students').select('id,name,roll,class_id,monthly_fee').eq('status','Active').order('roll'),
+  sb.from('attendance').select('student_id,status,day').eq('day',today()),
+  sb.from('fees').select('id,receipt,student_id,month,amount,kind,reversed,created_at').order('created_at',{ascending:false}).limit(8),
+  sb.from('notices').select('id,title,body,class_id,created_at').eq('removed',false).order('created_at',{ascending:false}).limit(8),
+  sb.from('diary').select('id,subject,homework,day,published').order('created_at',{ascending:false}).limit(8),
+  sb.from('attendance_final').select('class_id,day').eq('day',today()),
+  sb.from('classes').select('id,name').order('name'),
+  isAd?sb.rpc('list_logins'):Promise.resolve({data:[]})]);
+ const e=[st,at,fe,no,di,fi,cl,lg].find(r=>r.error);if(e)banner('Load error: '+e.error.message,1);
+ D={st:st.data||[],at:at.data||[],fe:fe.data||[],no:no.data||[],di:di.data||[],fi:fi.data||[],cl:cl.data||[],lg:lg.data||[]};render()}
+function listen(){if(chan)sb.removeChannel(chan);
+ chan=sb.channel('school-live').on('postgres_changes',{event:'*',schema:'public'},p=>{onEvent(p);load()})
+  .subscribe(s=>{rtState=s==='SUBSCRIBED'?'● live':'○ '+String(s).toLowerCase();const r=$('#rt');if(r)r.textContent=rtState})}
+function onEvent(p){const t=p.table,r=p.new||{};let m='';
+ if(t==='attendance')m='Attendance: '+(r.status||'updated');else if(t==='attendance_final')m='Attendance submitted and locked';
+ else if(t==='notices')m='New notice: '+(r.title||'');else if(t==='diary')m='New diary: '+(r.subject||'');
+ else if(t==='fees')m=(r.kind==='reversal'?'Payment reversed ':'Fee received ')+(r.receipt||'');
+ if(!m)return;banner('🔔 '+m);try{navigator.vibrate&&navigator.vibrate([150,80,150])}catch(e){}
+ try{if(window.Notification&&Notification.permission==='granted')new Notification('SMHS Ellahabad',{body:m})}catch(e){}}
+const val=id=>($('#'+id)?.value||'').trim();
+function noticesHTML(){return D.no.map(n=>`<div class="row"><div style="display:block"><b>${esc(n.title)}</b><br><small>${esc(n.body)}</small></div><small>${n.class_id?'class':'school'}</small></div>`).join('')||'<p class="muted">No notices yet.</p>'}
+function diaryHTML(){return D.di.map(d=>`<div class="row"><div style="display:block"><b>${esc(d.subject)}</b> <small>${esc(d.day)}</small><br><small>${esc(d.homework||'')}</small></div></div>`).join('')||'<p class="muted">No diary yet.</p>'}
+function feesHTML(){return D.fe.map(f=>`<div class="row"><span>${esc(f.receipt)} · ${esc(f.month)}</span><b>Rs. ${Math.abs(f.amount)}${f.kind==='reversal'?' (reversal)':f.reversed?' (reversed)':''}</b></div>`).join('')||'<p class="muted">No payments yet.</p>'}
+function loginsHTML(){const q=LQ.trim().toLowerCase();
+ const rows=D.lg.filter(l=>!q||[l.login_name,l.full_name,l.phone_no,l.children_names,l.class_name].some(x=>String(x||'').toLowerCase().includes(q)));
+ if(!rows.length)return '<p class="muted">'+(D.lg.length?'No login matches your search.':'No logins yet.')+'</p>';
+ const groups={};rows.forEach(l=>{const k=l.user_role==='parent'?(l.class_name||'No class'):'Staff';(groups[k]=groups[k]||{cid:l.user_role==='parent'?l.class_id:null,items:[]}).items.push(l)});
+ const names=Object.keys(groups).sort((a,b)=>a==='Staff'?1:b==='Staff'?-1:a.localeCompare(b,undefined,{numeric:true}));
+ return names.map(n=>{const g=groups[n],pend=g.items.filter(l=>l.user_role==='parent'&&l.is_active&&!l.first_login_done).length;
+  return `<h4 style="margin:14px 0 4px">${esc(n)} <small>(${g.items.length})</small></h4>${n!=='Staff'&&g.cid?`<button data-act="classslips" data-cid="${g.cid}" data-cn="${esc(n)}" ${pend?'':'disabled'} style="padding:6px 10px;font-size:14px">Print slips for ${esc(n)} (${pend} not signed in yet)</button>`:''}`+
+  g.items.map(l=>`<div class="row"><div style="display:block"><b>${esc(l.full_name)}</b> <small>${esc(l.user_role)}</small><br><small>${esc(l.login_name)}${l.children_names?' · '+esc(l.children_names):''}${l.user_role==='teacher'&&l.class_name?' · '+esc(l.class_name):''}</small><br><span class="tag ${l.first_login_done?'':'mid'}">${l.first_login_done?'signed in':'not signed in yet'}</span></div><button data-act="resetlogin" data-u="${esc(l.login_name)}" data-n="${esc(l.full_name)}" style="background:#7a5200">Reset password</button></div>`).join('')}).join('')}
+function form(kind){return kind==='notice'?`<div class="card"><h3>Post notice</h3><input id="nt" placeholder="Title" maxlength="80"><textarea id="nb" rows="2" placeholder="Message"></textarea><button data-act="notice">Publish</button></div>`:
+ `<div class="card"><h3>Diary</h3><input id="ds" placeholder="Subject" maxlength="40"><textarea id="dh" rows="2" placeholder="Homework"></textarea><button data-act="diary">Publish diary</button></div>`}
+function showSlips(rows,title){const url=location.href.split('#')[0];title=title||'login(s) ready';
+ $('#slips').innerHTML=`<div class="bar noprint"><b>${rows.length} ${esc(title)}.</b> The passwords are shown only now. Print before closing.<br><button data-act="printSlips">Print slips</button> <button data-act="closeSlips" style="background:#444">Close</button></div><div class="slipgrid">${rows.map(r=>`<div class="slip"><b>Scholars Model High School</b><br>School login<br><br>Name: ${esc(r.parent_name)}<br>${r.children_names?'Children: '+esc(r.children_names)+'<br>':''}Username: <b>${esc(r.login_name)}</b><br>Temporary password: <b>${esc(r.temp_password)}</b><br><small>Open: ${esc(url)}<br>You will choose a new password at first sign-in.</small></div>`).join('')}</div>`;window.scrollTo(0,0)}
+function render(){const a=$('#app');
+ if(!me){a.innerHTML=`<main><div class="card"><h3>Scholars Model High School</h3><input id="u" placeholder="Username" autocapitalize="none" autocomplete="username"><input id="p" type="password" placeholder="password" autocomplete="current-password"><button data-act="login">Sign in</button></div></main>`;return}
+ if(me.must_change){a.innerHTML=`<main><div class="card"><h3>Choose your new password</h3><p class="muted">8+ characters with letters and numbers.</p><input id="np1" type="password" placeholder="New password" autocomplete="new-password"><input id="np2" type="password" placeholder="Repeat new password" autocomplete="new-password"><button data-act="newpass">Save password</button> <button data-act="logout" style="background:#444">Out</button></div></main>`;return}
+ const locked=D.fi.length>0,left=D.st.filter(s=>!D.at.some(a=>a.student_id===s.id)).length;let body='';
+ if(me.role==='teacher')body=`<div class="card"><h3>Attendance · ${today()} ${locked?'<span class="tag">submitted</span>':''}</h3>${D.st.map(s=>{const x=D.at.find(a=>a.student_id===s.id)?.status;return `<div class="row"><b>${s.roll}. ${esc(s.name)}</b><div>${['Present','Absent','Late','Leave'].map(k=>`<button class="${x===k?'on':''}" data-act="mark" data-sid="${s.id}" data-st="${k}" ${locked?'disabled':''} title="${k}">${SL[k]}</button>`).join('')}</div></div>`}).join('')||'<p class="muted">No students in your class.</p>'}${!locked&&left?`<p class="muted">${left} student(s) not marked yet. Mark everyone to submit.</p>`:''}<button data-act="lock" ${locked||!D.st.length||left?'disabled':''}>Submit and lock</button></div>${form('notice')}${form('diary')}<div class="card"><h3>Notices</h3>${noticesHTML()}</div>`;
+ else if(me.role==='parent')body=`<div class="card"><h3>${D.st.map(s=>esc(s.name)).join(', ')||'No child linked'}</h3>${D.st.map(s=>{const x=D.at.find(a=>a.student_id===s.id)?.status;return `<p>Today: <span class="tag ${x==='Absent'?'bad':x==='Late'||x==='Leave'?'mid':x?'':'none'}">${x||'not marked yet'}</span></p>`}).join('')}</div><div class="card"><h3>Fees</h3>${feesHTML()}</div><div class="card"><h3>Notices</h3>${noticesHTML()}</div><div class="card"><h3>Diary</h3>${diaryHTML()}</div>`;
+ else body=`<div class="card"><h3>Today</h3><p>Students: <b>${D.st.length}</b> · marked: <b>${D.at.length}</b> · classes submitted: <b>${D.fi.length}</b></p></div><div class="card"><h3>Record fee payment</h3><select id="fs">${D.st.map(s=>`<option value="${s.id}" data-fee="${s.monthly_fee}">${esc(s.name)}</option>`).join('')}</select><input id="fm" type="month" value="${today().slice(0,7)}"><input id="fa" type="number" placeholder="Amount (PKR)" value="${D.st[0]?.monthly_fee||''}"><button data-act="fee">Save payment</button></div><div class="card"><h3>Payments</h3>${feesHTML()}</div><div class="card"><h3>Logins</h3><input id="lq" placeholder="Search: name, username, phone or child" value="${esc(LQ)}"><div id="lgbox">${loginsHTML()}</div></div><div class="card"><h3>Parent logins (catch-up)</h3><p class="muted">New students get a login automatically. This button only catches up students who were added without one. Creates a login for every student who has a phone number and no parent login yet. Username is p + phone number. Brothers and sisters with the same phone share one login. Printable slips follow.</p><button data-act="parentlogins">Create parent logins for all</button></div><div class="card"><h3>Add class</h3><input id="cn" placeholder="Class name (e.g. Class 7)" maxlength="40"><button data-act="addclass">Add class</button></div><div class="card"><h3>Admission: add student</h3><input id="sa" placeholder="Admission no"><input id="sn" placeholder="Student name"><input id="sf" placeholder="Father / guardian"><input id="sp" placeholder="Phone (optional)"><select id="sc">${D.cl.map(c=>`<option value="${c.id}">${esc(c.name)}</option>`).join('')}</select><input id="sr" type="number" min="1" placeholder="Roll no"><input id="sd" type="date" value="${today()}"><input id="sm" type="number" min="0" step="1" placeholder="Monthly fee (PKR)"><select id="sg"><option value="">Gender</option><option>Male</option><option>Female</option></select><input id="sb" type="date" title="Date of birth"><input id="sx" placeholder="Address (optional)"><p class="muted">The parent login is created automatically when a phone number is entered.</p><button data-act="addstudent">Save student</button></div><div class="card"><h3>Create login</h3><select id="cr"><option value="teacher">Teacher</option><option value="parent">Parent</option>${me.role==='admin'?'<option value="manager">Manager</option>':''}</select><input id="cu" placeholder="Username (letters, digits)" autocapitalize="none"><input id="cm" placeholder="Full name"><input id="cph" placeholder="Phone (optional)"><input id="cpw" type="text" placeholder="Temporary password (8+, letters and numbers)"><select id="ccl"><option value="">Teacher: choose class</option>${D.cl.map(c=>`<option value="${c.id}">${esc(c.name)}</option>`).join('')}</select><select id="cus" multiple size="4" title="Parent: choose children">${D.st.map(x=>`<option value="${x.id}">${esc(x.name)}</option>`).join('')}</select><p class="muted">Teacher: pick a class. Parent: pick children (hold Ctrl or tap several).</p><button data-act="createuser">Create login</button></div><div class="card"><h3>Whole-school notice</h3><input id="nt" placeholder="Title" maxlength="80"><textarea id="nb" rows="2" placeholder="Message"></textarea><button data-act="noticeall">Publish to everyone</button></div><div class="card"><h3>Notices</h3>${noticesHTML()}</div>`;
+ a.innerHTML=`<header><div><b>${esc(me.name)}</b> <small>(${me.role})</small></div><div><span id="rt" style="margin-right:10px;font-size:13px">${rtState}</span><button data-act="alerts" style="padding:6px 9px">Alerts</button> <button data-act="logout" style="padding:6px 9px;background:#444">Out</button></div></header><main>${body}</main>`}
+document.addEventListener('click',async e=>{const b=e.target.closest('[data-act]');if(!b)return;const a=b.dataset.act;
+ if(a==='login'){const u=val('u').toLowerCase(),p=$('#p').value;if(!u||!p)return;
+  const{data,error}=await sb.auth.signInWithPassword({email:u+'@names.school',password:p});if(error)return banner('Login failed: '+error.message,1);return enter(data.user)}
+ if(a==='logout'){await sb.auth.signOut();if(chan)sb.removeChannel(chan);me=null;rtState='○';return render()}
+ if(a==='alerts'){try{const r=await Notification.requestPermission();banner(r==='granted'?'Alerts on':'Alerts blocked. In-app banner and vibration still work.')}catch(e){banner('This browser has no system alerts. In-app banner and vibration still work.')}return}
+ if(!me)return;
+
+ if(a==='parentlogins'){const{data,error}=await sb.rpc('create_parent_logins');if(error)return banner(error.message,1);
+  if(!data||!data.length)return banner('No new logins needed. Every student with a phone number already has a parent login.');showSlips(data,'parent login(s) created. Print before closing');return load()}
+ if(a==='resetlogin'){if(!confirm('Reset password for '+b.dataset.n+'? The old password stops working.'))return;
+  const{data,error}=await sb.rpc('reset_login_random',{p_username:b.dataset.u});if(error)return banner(error.message,1);showSlips(data,'new temporary password. Print before closing');return load()}
+ if(a==='classslips'){const{data,error}=await sb.rpc('reissue_parent_slips',{p_class:b.dataset.cid});if(error)return banner(error.message,1);
+  if(!data||!data.length)return banner('Nobody to print: everyone in '+b.dataset.cn+' has already signed in.');showSlips(data,'slip(s) for '+b.dataset.cn+'. Print before closing');return load()}
+ if(a==='printSlips'){window.print();return}
+ if(a==='closeSlips'){$('#slips').innerHTML='';return}
+ if(a==='addclass'){const n=val('cn');if(!n)return banner('Enter a class name.',1);return run(sb.from('classes').insert({name:n}))}
+ if(a==='addstudent'){const o={admission_no:val('sa'),name:val('sn'),father:val('sf'),phone:val('sp')||null,class_id:val('sc'),roll:Number(val('sr')),admission_date:val('sd'),monthly_fee:Number(val('sm')),gender:val('sg')||null,dob:val('sb')||null,address:val('sx')||null};
+  if(!o.admission_no||!o.name||!o.father||!o.class_id||!(o.roll>0)||!o.admission_date||!Number.isInteger(o.monthly_fee))return banner('Fill admission no, name, father, class, roll, date and a whole-number fee.',1);
+  {const{error}=await sb.from('students').insert(o);if(error)return banner(error.message,1);
+   if(o.phone){const r=await sb.rpc('create_parent_logins');if(r.error)banner(r.error.message,1);else if(r.data&&r.data.length)showSlips(r.data,'parent login(s) created. Print before closing')}return load()}}
+ if(a==='createuser'){const r=val('cr');const{error}=await sb.rpc('create_school_user',{p_username:val('cu'),p_name:val('cm'),p_role:r,p_password:$('#cpw').value,p_phone:val('cph')||null,p_class:r==='teacher'?(val('ccl')||null):null,p_students:r==='parent'?[...$('#cus').selectedOptions].map(o=>o.value):[]});
+  if(error)return banner(error.message,1);banner('Login created: '+val('cu').toLowerCase()+'. They must set a new password at first sign-in.');['cu','cm','cph','cpw'].forEach(i=>$('#'+i).value='');return}
+ if(a==='newpass'){const p=$('#np1').value;if(p!==$('#np2').value)return banner('The two passwords do not match.',1);if(p.length<8||!/[A-Za-z]/.test(p)||!/[0-9]/.test(p))return banner('Use 8+ characters with letters and numbers.',1);
+  const{error}=await sb.auth.updateUser({password:p});if(error)return banner(error.message,1);const r=await sb.rpc('password_changed');if(r.error)return banner(r.error.message,1);me.must_change=false;banner('Password changed.');return load()}
+ if(a==='mark')return run(sb.from('attendance').upsert({student_id:b.dataset.sid,day:today(),status:b.dataset.st,marked_by:me.id},{onConflict:'student_id,day'}));
+ if(a==='lock'){if(confirm('Submit and lock today\'s attendance?'))return run(sb.from('attendance_final').insert({class_id:me.class_id,day:today(),finalized_by:me.id}));return}
+ if(a==='notice'||a==='noticeall'){const t=val('nt'),m=val('nb');if(!t||!m)return banner('Enter a title and message.',1);return run(sb.from('notices').insert({class_id:a==='notice'?me.class_id:null,title:t,body:m,author_id:me.id}))}
+ if(a==='diary'){const s=val('ds');if(!s)return banner('Enter a subject.',1);return run(sb.from('diary').insert({class_id:me.class_id,day:today(),subject:s,homework:val('dh'),published:true,author_id:me.id}))}
+ if(a==='fee'){const amt=Number(val('fa'));if(!val('fs')||!(amt>0))return banner('Choose a student and amount.',1);return run(sb.from('fees').insert({student_id:val('fs'),month:val('fm'),amount:Math.round(amt),method:'Cash',kind:'payment',by_user:me.id}))}});
+document.addEventListener('input',e=>{if(e.target.id==='lq'){LQ=e.target.value;$('#lgbox').innerHTML=loginsHTML()}});
+document.addEventListener('change',e=>{if(e.target.id==='fs'){const o=e.target.selectedOptions[0];$('#fa').value=o?.dataset.fee||''}});
+boot();
+if('serviceWorker' in navigator)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
+</script></body></html>
