@@ -315,6 +315,13 @@ input[type=checkbox]{width:20px;height:20px;min-height:0!important;padding:0;box
 .attgrid .gname{text-align:left;white-space:nowrap;position:sticky;left:0}
 .attgrid .gd{min-width:22px}.attgrid .gt{font-weight:700;background:rgba(127,127,127,.08)}
 .attgrid .gc{font-weight:700;min-width:22px}.attgrid .gA{color:#c0392b}.attgrid .gL{color:#b9770e}.attgrid .gLv{color:#2471a3}.attgrid .gP{color:#1e8449}
+@media(max-width:640px){
+ .qa+select[data-att-id]{display:none}
+ div.qa{margin-right:0;gap:3px}div.qa .qb{min-width:33px;min-height:40px;padding:6px 3px;font-size:12px}
+}
+.gridcard .tablewrap{overflow-x:auto!important;-webkit-overflow-scrolling:touch;border:1px solid rgba(255,255,255,.9)!important;border-radius:14px!important;background:#EDF0F3!important}
+.attgrid .gname{background:#EDF0F3;z-index:1}
+@media(max-width:640px){.attgrid .gname{white-space:normal;min-width:78px;max-width:92px;font-size:11px;line-height:1.25}.attgrid th,.attgrid td{padding:4px 3px}}
 @media print{
  body:not(.print-grid) .gridcard{display:none!important}
  body.print-grid .sumcard,body.print-grid .pagehead{display:none!important}
@@ -327,6 +334,7 @@ input[type=checkbox]{width:20px;height:20px;min-height:0!important;padding:0;box
 
 .qa{display:inline-flex;gap:4px;margin-right:8px;vertical-align:middle}
 .qb{min-width:36px;padding:7px 8px;font-weight:700}
+td.nm{white-space:normal;overflow-wrap:break-word;word-break:normal}
 .qb.on.qPresent{background:#1e8449!important;color:#fff!important}.qb.on.qAbsent{background:#c0392b!important;color:#fff!important}.qb.on.qLate{background:#d68910!important;color:#fff!important}.qb.on.qLeave{background:#2471a3!important;color:#fff!important}
 .attcal{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;max-width:420px;margin:14px 0 6px}
 .attcal .ch{text-align:center;font-size:11px;color:var(--muted)}
@@ -490,7 +498,7 @@ function attGrid(cid,m,st){
   const cells=days.map(d=>{const v=db.attendance[d][s.id];return `<td class="gc g${v&&CODE[v]?CODE[v]:'x'}">${v&&CODE[v]?CODE[v]:''}</td>`}).join('');
   return `<tr><td>${esc(s.roll)}</td><td class="gname"><b>${esc(s.name)}</b></td>${cells}<td class="gt">${a.Present}</td><td class="gt">${a.Absent}</td><td class="gt">${a.Late}</td><td class="gt">${a.Leave}</td><td class="gt">${a.rate===null?'—':a.rate+'%'}</td></tr>`}).join('');
  return `<section class="card gridcard"><div class="pagehead" style="margin-bottom:8px"><div><h3>Daily attendance grid</h3><p class="muted">${esc(clsName(cid))} · ${esc(m)} · only days with recorded attendance are shown. P = Present, A = Absent, L = Late, Lv = Leave, blank = not marked.</p></div><div class="actions noprint"><button class="primary" data-action="print-grid">Print grid (landscape)</button><button data-action="export-grid">Download CSV</button></div></div>
- <div class="tablewrap"><table class="attgrid"><thead><tr><th>Roll</th><th>Student</th>${head}<th class="gt">P</th><th class="gt">A</th><th class="gt">L</th><th class="gt">Lv</th><th class="gt">%</th></tr></thead><tbody>${rows}</tbody></table></div></section>`}
+ <div class="tablewrap"><table class="attgrid" data-lbl="1"><thead><tr><th>Roll</th><th>Student</th>${head}<th class="gt">P</th><th class="gt">A</th><th class="gt">L</th><th class="gt">Lv</th><th class="gt">%</th></tr></thead><tbody>${rows}</tbody></table></div></section>`}
 
 function waLink(phone,msg){const n=normPhone(phone);if(!n)return '';const intl=n.startsWith('03')?'92'+n.slice(1):n.replace(/^\+/,'');return 'https://wa.me/'+intl+'?text='+encodeURIComponent(msg)}
 function absentStreaks(cid,min){min=min||3;const out=[],st=classStudents(cid);
@@ -503,8 +511,8 @@ function absentAlert(cids){const rows=[];cids.forEach(c=>absentStreaks(c).forEac
 function defaultersCard(){const m=month();
  const list=activeStudents().filter(x=>!isSettled(x,m)).sort((x,y)=>clsName(x.classId).localeCompare(clsName(y.classId))||x.roll-y.roll);
  const rows=list.slice(0,100).map(x=>{const wa=waLink(x.phone,'Assalam o Alaikum. '+(x.father?x.father+' sahib/sahiba, ':'')+x.name+' ('+clsName(x.classId)+') ki '+monthLabel(m)+' ki fee '+money(feeDue(x,m))+' abhi baqi hai. Meherbani karke ada kar dein. Shukriya. - '+SCHOOL());
-  return `<tr><td>${esc(clsName(x.classId))}</td><td>${x.roll}</td><td><b>${esc(x.name)}</b></td><td>${esc(x.father||'—')}</td><td>${esc(x.phone||'—')}</td><td>${money(feeDue(x,m))}</td><td class="noprint">${wa?`<button class="small" data-action="wa" data-url="${esc(wa)}">WhatsApp</button>`:'<span class="muted">No phone</span>'}</td></tr>`}).join('');
- return `<section class="card"><h3>Fee not paid · ${esc(monthLabel(m))} (${list.length})</h3>${table(['Class','Roll','Student','Father','Phone','Fee due',''],rows)}${list.length>100?'<p class="muted">First 100 shown. Use “Unpaid list (CSV)” for the full list.</p>':''}</section>`}
+  return `<div class="classrow"><div><b>${esc(x.name)}</b><small>${esc(clsName(x.classId))} · Roll ${esc(x.roll)}${x.father?' · '+esc(x.father):''}${x.phone?' · '+esc(x.phone):''}</small></div><div style="text-align:right">${pill(money(feeDue(x,m)),'red')} ${wa?`<button class="small noprint" data-action="wa" data-url="${esc(wa)}">WhatsApp</button>`:'<span class="muted">No phone</span>'}</div></div>`}).join('');
+ return `<section class="card"><h3>Fee not paid · ${esc(monthLabel(m))} (${list.length})</h3>${rows||'<p class="muted">Everyone has paid.</p>'}${list.length>100?'<p class="muted">First 100 shown. Use “Unpaid list (CSV)” for the full list.</p>':''}</section>`}
 function qaButtons(x){const C={Present:'P',Absent:'A',Late:'L',Leave:'Lv'};return `<div class="qa">${Object.keys(C).map(v=>`<button type="button" class="small qb q${v}" data-action="att-set" data-id="${x.id}" data-v="${v}" aria-label="${v} ${esc(x.name)}">${C[v]}</button>`).join('')}</div>`}
 function syncQA(){document.querySelectorAll('select[data-att-id]').forEach(sel=>{document.querySelectorAll('.qb[data-id="'+CSS.escape(sel.dataset.attId)+'"]').forEach(b=>b.classList.toggle('on',b.dataset.v===sel.value))})}
 function attCal(x,m){if(!/^\d{4}-\d{2}$/.test(m))return '';const [y,mo]=m.split('-').map(Number),n=new Date(y,mo,0).getDate(),off=(new Date(y,mo-1,1).getDay()+6)%7;
@@ -626,7 +634,7 @@ attendance(){
  if(ui.attDate>today())ui.attDate=today();
  const d=ui.attDate,st=classStudents(cid),rec=db.attendance[d]||{},fin=db.finalized[d+'|'+cid],locked=!isAdmin()&&(fin||d!==today());
  const cnt={Present:0,Absent:0,Late:0,Leave:0,Unmarked:0};st.forEach(s=>cnt[rec[s.id]||'Unmarked']++);
- const rows=st.map(s=>`<tr><td>${s.roll}</td><td><b>${esc(s.name)}</b></td><td>${locked?statusPill(rec[s.id]||'Unmarked'):`${qaButtons(s)}<select data-att-id="${s.id}" aria-label="Attendance ${esc(s.name)}">${STATUSES.map(x=>`<option ${(rec[s.id]||'Unmarked')===x?'selected':''}>${x}</option>`).join('')}</select>`}</td></tr>`).join('');
+ const rows=st.map(s=>`<tr><td>${s.roll}</td><td class="nm"><b>${esc(s.name)}</b></td><td>${locked?statusPill(rec[s.id]||'Unmarked'):`${qaButtons(s)}<select data-att-id="${s.id}" aria-label="Attendance ${esc(s.name)}">${STATUSES.map(x=>`<option ${(rec[s.id]||'Unmarked')===x?'selected':''}>${x}</option>`).join('')}</select>`}</td></tr>`).join('');
  const recentRows=Object.keys(db.attendance).sort().reverse().map(dd=>{const c={Present:0,Absent:0,Late:0,Leave:0};let any=false;st.forEach(s=>{const v=db.attendance[dd][s.id];if(v&&c[v]!==undefined){c[v]++;any=true}});return any?`<tr><td>${dd}</td><td>${c.Present}</td><td>${c.Absent}</td><td>${c.Late}</td><td>${c.Leave}</td><td>${db.finalized[dd+'|'+cid]?pill('✓ Submitted','green'):pill('Legacy draft','amber')}</td><td><button class="small" data-action="att-open" data-date="${dd}">Open</button></td></tr>`:''}).filter(Boolean).slice(0,10).join('');
  const btns=locked?'':fin?`<button class="primary" data-action="att-correct">Correct attendance (admin)</button>`:`<button data-action="all-present">Mark all Present</button><button class="primary" data-action="att-submit">Submit attendance</button>`;
  return header('Attendance','Submitted once per class per day. After submission only the administrator can correct it, with a recorded reason.',btns)+
