@@ -37,3 +37,7 @@ every line should say OK (the Notification clock line may say CHECK, that is fin
 
 ## Updating later
 Change files on GitHub > Cloudflare deploys by itself > press Ctrl + Shift + R.
+
+## PTM tracker (patch 16)
+Run `database/4-PATCH-16-PTM.sql` once in Supabase (SQL Editor) on the live project. New projects get it from the master file.
+Then open "PTM" in the menu. Owner/manager see every class, a teacher sees only their own class.

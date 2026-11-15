@@ -343,6 +343,8 @@ td.nm{white-space:normal;overflow-wrap:break-word;word-break:normal}
 .attcal .cP{background:#d4efdf;color:#1e8449}.attcal .cA{background:#f5b7b1;color:#922b21}.attcal .cL{background:#fdebd0;color:#935116}.attcal .cLv{background:#d6eaf8;color:#1b4f72}
 body.ur{font-family:'Noto Nastaliq Urdu','Noto Naskh Arabic','Jameel Noori Nastaleeq','Segoe UI',Tahoma,Arial,sans-serif;line-height:1.75}
 body.ur button,body.ur input,body.ur select{font-family:inherit}
+.ptmtags{display:flex;flex-wrap:wrap;gap:4px}
+@media print{.ptmtags .pill{border:1px solid #000}}
 </style></head><body>
 <div id="busybar"></div>
 <div id="splash"><div class="logo" role="img" aria-label="Scholars Model High School logo"></div><b id="splashName">Scholars Model High School</b><div class="spin"></div><small id="splashMsg">Loading…</small></div>
@@ -589,6 +591,7 @@ function classOverview(cid){
  return `<div class="stats">${stat('Students',st.length,esc(c.name))}${stat('Class teacher',esc(teacherName(c.teacherId)),'One teacher per class')}${stat('Attendance today',att,t)}${stat('Diary today',dt,'Published entries')}</div>
  <div class="actions" style="margin-bottom:14px"><button class="primary" data-page="attendance" data-cid="${cid}">Take attendance</button><button data-action="add-diary" data-cid="${cid}">＋ Write diary</button><button data-page="reports" data-cid="${cid}">Class report</button><button data-page="students" data-cid="${cid}">All students</button></div>
  ${absentAlert([cid])}
+ ${ptmDashCard([cid])}
  <div class="twocol"><section class="card"><h3>Students (${st.length})</h3>${table(['Roll','Name','Parent'],st.slice(0,8).map(s=>`<tr><td>${s.roll}</td><td><b>${esc(s.name)}</b></td><td>${esc(s.father)}</td></tr>`).join(''))}${st.length>8?`<p class="muted">First 8 shown. Use "All students" to see the rest.</p>`:''}</section>
  <section class="card"><h3>Class diary (recent)</h3>${recent.length?recent.map(x=>`<div class="classrow"><div><b>${esc(x.subject)}</b><small>${esc(x.date)} · ${esc(x.homework).slice(0,80)}</small></div>${pill(x.status,x.status==='Published'?'green':'amber')}</div>`).join(''):'<p class="muted">No diary written yet.</p>'}</section></div>`}
 
@@ -607,6 +610,7 @@ dashboard(){
  (freeT.length?`<div class="notice">ℹ ${freeT.length} teacher(s) have no class yet: ${esc(freeT.map(u=>u.name).join(', '))}.</div>`:'')+
  `<div class="stats">${stat('Active students',st.length,'All classes')}${stat('Teachers',teacherList().filter(u=>u.active).length,'Active')}${stat('Classes',db.classes.length,finN+' submitted attendance today')}${stat('Fees (this month)',money(collected),month())}</div>
  ${absentAlert(db.classes.map(c=>c.id))}
+ ${ptmDashCard(db.classes.map(c=>c.id))}
  <section class="card"><h3>Classes</h3>${rows||'<p class="muted">No classes.</p>'}</section>`},
 
 students(){
@@ -1065,10 +1069,10 @@ async function doSetup(){
 function refreshMe(){if(!me)return false;const u=db.users.find(x=>x.id===me.id);if(!u||!u.active){me=null;return false}me=u;return true}
 
 /* ---------- shell ---------- */
-const NAVITEMS={dashboard:['▦','Home'],students:['♙','Students'],teachers:['♟','Teachers'],accounts:['♚','Accounts'],classes:['▤','Classes'],attendance:['✓','Attendance'],fees:['₨','Fees'],diary:['▣','Diary'],payroll:['▧','Payroll'],expenses:['▥','Expenses'],reports:['◧','Reports'],audit:['☰','Audit Log'],backup:['⇧','Backup'],p_attendance:['✓','Attendance'],p_fees:['₨','Fees'],p_diary:['▣','Diary'],results:['✎','Results'],p_results:['✎','Results'],notices:['✉','Notices'],p_notices:['✉','Notices']};
-const NAV={admin:['dashboard','students','teachers','accounts','classes','attendance','fees','diary','results','notices','payroll','expenses','reports','audit','backup'],
- manager:['dashboard','students','teachers','accounts','classes','attendance','fees','diary','results','notices','payroll','expenses','reports','audit'],
- teacher:['dashboard','students','attendance','diary','results','notices','reports'],
+const NAVITEMS={dashboard:['▦','Home'],students:['♙','Students'],teachers:['♟','Teachers'],accounts:['♚','Accounts'],classes:['▤','Classes'],attendance:['✓','Attendance'],fees:['₨','Fees'],diary:['▣','Diary'],payroll:['▧','Payroll'],expenses:['▥','Expenses'],reports:['◧','Reports'],audit:['☰','Audit Log'],backup:['⇧','Backup'],p_attendance:['✓','Attendance'],p_fees:['₨','Fees'],p_diary:['▣','Diary'],results:['✎','Results'],ptm:['✆','PTM'],p_results:['✎','Results'],notices:['✉','Notices'],p_notices:['✉','Notices']};
+const NAV={admin:['dashboard','students','teachers','accounts','classes','attendance','fees','diary','results','ptm','notices','payroll','expenses','reports','audit','backup'],
+ manager:['dashboard','students','teachers','accounts','classes','attendance','fees','diary','results','ptm','notices','payroll','expenses','reports','audit'],
+ teacher:['dashboard','students','attendance','diary','results','ptm','notices','reports'],
  parent:['dashboard','p_attendance','p_fees','p_diary','p_results','p_notices']};
 /* only the admin (owner) may use these; a manager may not */
 const LOCAL_ONLY=new Set(['restore','clear-demo','load-test','save-school']);
@@ -1141,6 +1145,7 @@ function render(){
 function handleAction(a,b){
  const id=b.dataset.id;
  if(a.startsWith('res-')){if(!me)return;Promise.resolve(resAct(a,b)).catch(e=>alert((e&&e.message)||'Something went wrong.'));return}
+ if(a.startsWith('ptm-')){if(!me||isParent())return;Promise.resolve(ptmAct(a,b)).catch(e=>alert((e&&e.message)||'Something went wrong.'));return}
  if(a==='close-modal')return closeModal();
  if(a==='lang')return setLang();
  if(a==='submit-modal'){if(!modalSubmit||modalBusy)return;const fn=modalSubmit;modalBusy=true;b.classList.add('loading');Promise.resolve().then(()=>fn()).catch(e=>alert((e&&e.message)||'Something went wrong.')).finally(()=>{modalBusy=false;b.classList.remove('loading')});return}
@@ -1507,7 +1512,7 @@ async function loadRes(){
   RES.mk={};mk.forEach(m=>{(RES.mk[m.exam_id]||(RES.mk[m.exam_id]={}))[m.student_id]={a:!!m.absent,m:m.marks===null?null:Number(m.marks)}});
  }catch(e){RES.err=(e&&e.message)||'Could not load results.'}
  RES.loaded=true;RES.loading=false;
- if(me&&(page==='results'||page==='p_results')&&!$('#modalback').classList.contains('show'))render();
+ if(me&&(page==='results'||page==='p_results'||page==='ptm')&&!$('#modalback').classList.contains('show'))render();
 }
 const reloadRes=async()=>{RES.loaded=false;await loadRes()};
 const f1=v=>v===null||v===undefined?'\u2014':(Math.round(v*10)/10)+'%';
@@ -1623,9 +1628,99 @@ pages.p_results=()=>{
  if(!RES.loaded){loadRes();return header('Results',esc(s.name))+'<div class="notice">Loading results\u2026</div>'}
  return header('Results',esc(s.name)+' \u00b7 '+esc(clsName(s.classId)),`<button data-action="res-print">Print</button>`)+errBox()+`<section class="card"><div class="toolbar">${kidSelect()}<label>Term<select id="resTerm">${termOpts()}</select></label></div>${stuHtml(s,ui.resTerm,false)}</section>`};
 document.addEventListener('change',e=>{const t=e.target;if(!me)return;
- if(t.id==='resClass'){ui.resClass=t.value;ui.resExam='';render()}
+ if(t.id==='ptmClass'){ui.ptmClass=t.value;render()}
+ else if(t.id==='ptmMonth'){if(/^\d{4}-\d{2}$/.test(t.value)){ui.ptmMonth=t.value;render()}}
+ else if(t.id==='ptmFilter'){ui.ptmFilter=t.value;render()}
+ else if(t.id==='resClass'){ui.resClass=t.value;ui.resExam='';render()}
  else if(t.id==='resTerm'){ui.resTerm=t.value;render()}
  else if(t.classList&&t.classList.contains('ra')){const i=document.querySelector('.rm[data-sid="'+t.dataset.sid+'"]');if(i){i.disabled=t.checked;if(t.checked)i.value=''}}});
+
+/* ===== PTM tracker (patch 16) ===== */
+const PTM={rec:{},last:{},loaded:false,loading:false,err:''};
+ui.ptmMonth=month();ui.ptmClass='';ui.ptmFilter='pending';
+const PTM_ST=['Done','Parent did not come','Needs follow-up'];
+const prevMonth=m=>{const[y,mo]=m.split('-').map(Number);const d=new Date(y,mo-2,1);return d.getFullYear()+'-'+pad(d.getMonth()+1)};
+async function loadPtm(){
+ if(PTM.loading)return;PTM.loading=true;PTM.err='';
+ try{
+  const r=await rows(()=>sb.from('ptm_records').select('*'),['id']);
+  PTM.rec={};PTM.last={};
+  r.forEach(x=>{PTM.rec[x.student_id+'|'+x.cycle]={id:x.id,sid:x.student_id,cycle:x.cycle,status:x.status,date:x.held_on||'',met:x.met_with||'',note:x.note||'',by:x.held_by_name||''};
+   if(x.status==='Done'){const d=x.held_on||(x.cycle+'-01');if(!PTM.last[x.student_id]||d>PTM.last[x.student_id])PTM.last[x.student_id]=d}});
+ }catch(e){PTM.err=(e&&e.message)||'Could not load PTM records.'}
+ PTM.loaded=true;PTM.loading=false;
+ if(me&&(page==='ptm'||page==='dashboard')&&!$('#modalback').classList.contains('show'))render();
+}
+const reloadPtm=async()=>{PTM.loaded=false;await loadPtm()};
+const ptmErr=()=>PTM.err?`<div class="notice">${esc(PTM.err)} \u2014 run the file <b>4-PATCH-16-PTM.sql</b> once in Supabase (SQL Editor).</div>`:'';
+const ptmCyc=()=>/^\d{4}-\d{2}$/.test(ui.ptmMonth)?ui.ptmMonth:month();
+function ptmCtx(cid){const streaks={};absentStreaks(cid).forEach(x=>{streaks[x.s.id]=x.n});
+ return{streaks,exs:RES.loaded?RES.ex.filter(e=>e.cid===cid):[],feesFrom:db.settings.feesFrom||(db.fees.length?db.fees.map(f=>f.month).sort()[0]:month())}}
+function ptmRisk(s,c){const tags=[];let sc=0;
+ const n=c.streaks[s.id];if(n){tags.push(['Absent '+n+' days in a row','red']);sc+=3}
+ const d=new Date();d.setDate(1);d.setMonth(d.getMonth()-1);const from=d.getFullYear()+'-'+pad(d.getMonth()+1)+'-01';
+ const a=attStats(s.id,s.classId,from,today()),den=a.Present+a.Absent+a.Late;
+ if(den>=5&&a.rate<75){tags.push(['Attendance '+a.rate+'%','red']);sc+=2}
+ const pm=prevMonth(month()),start=[String(s.admissionDate||'').slice(0,7),c.feesFrom].sort().pop();
+ if(start<=pm&&!isSettled(s,month())&&!isSettled(s,pm)){tags.push(['Fee unpaid 2+ months','amber']);sc+=2}
+ if(c.exs.length){const r=score(s.id,c.exs);if(r.p!==null){if(r.p<40){tags.push(['Marks '+Math.round(r.p)+'%','red']);sc+=3}else if(r.p<50){tags.push(['Marks '+Math.round(r.p)+'%','amber']);sc+=1}}}
+ const lp=PTM.last[s.id];
+ if(!lp)tags.push(['No PTM on record','blue']);else{const days=(Date.now()-new Date(lp).getTime())/864e5;if(days>90)tags.push(['Last PTM '+Math.round(days/30)+' months ago','blue'])}
+ return{tags,sc,level:sc>=3?'High':sc>=1?'Medium':'Normal'}}
+function ptmList(cid,cyc){const c=ptmCtx(cid);
+ return classStudents(cid).map(s=>{const r=PTM.rec[s.id+'|'+cyc]||null,k=ptmRisk(s,c);return{s,r,tags:k.tags,sc:k.sc,level:k.level,done:!!(r&&r.status==='Done')}})}
+const ptmPill=r=>!r?pill('Not yet','red'):r.status==='Done'?pill('Done'+(r.date?' \u00b7 '+r.date:''),'green'):pill(r.status,'amber');
+function ptmDashCard(cids){
+ if(!PTM.loaded&&!PTM.loading)loadPtm();
+ if(PTM.err)return '';
+ let body='<p class="muted">See which parents have met the teacher and who should be called next.</p>';
+ if(PTM.loaded){const cyc=month();let n=0,d=0;cids.forEach(c=>classStudents(c).forEach(s=>{n++;const r=PTM.rec[s.id+'|'+cyc];if(r&&r.status==='Done')d++}));
+  body=`<p class="muted">${esc(monthLabel(cyc))}: <b>${d}</b> of <b>${n}</b> parents met. ${n-d} remaining.</p>`}
+ return `<section class="card"><div class="pagehead" style="margin-bottom:0"><div><h3>PTM tracker</h3>${body}</div><div class="actions noprint"><button data-page="ptm">Open PTM</button></div></div></section>`}
+pages.ptm=()=>{
+ if(!PTM.loaded){loadPtm();return header('PTM tracker','')+'<div class="notice">Loading PTM records\u2026</div>'}
+ if(!RES.loaded&&!RES.loading)loadRes();
+ const cid=curClass('ptmClass');if(!cid)return header('PTM tracker','')+noClass();
+ const cyc=ptmCyc(),all=ptmList(cid,cyc);
+ const done=all.filter(x=>x.done).length,left=all.length-done,high=all.filter(x=>!x.done&&x.level==='High').length;
+ const f=ui.ptmFilter;
+ const list=all.filter(x=>f==='all'?true:f==='done'?x.done:f==='priority'?(!x.done&&x.level!=='Normal'):!x.done)
+  .sort((a,b)=>(a.done-b.done)||(b.sc-a.sc)||(a.s.roll-b.s.roll));
+ const trs=list.map(x=>{const s=x.s,wa=waLink(s.phone,'Assalam o Alaikum. '+(s.father?s.father+' sahib/sahiba, ':'')+s.name+' ('+clsName(s.classId)+') ki taraqqi par baat karne ke liye PTM mein aap se milna zaroori hai. Meherbani karke school aa kar class teacher se mil lein. Shukriya. - '+SCHOOL());
+  const lp=PTM.last[s.id];
+  return`<tr><td>${esc(s.roll)}</td><td class="nm"><b>${esc(s.name)}</b><br><small class="muted">${esc(s.father||'')}</small></td><td class="wrap"><div class="ptmtags">${x.level!=='Normal'&&!x.done?pill(x.level+' priority',x.level==='High'?'red':'amber')+' ':''}${x.tags.map(t=>pill(t[0],t[1])).join(' ')}</div></td><td>${ptmPill(x.r)}${x.r&&x.r.by?`<br><small class="muted">${esc(x.r.by)}${x.r.met?' \u00b7 met '+esc(x.r.met):''}</small>`:''}</td><td>${esc(lp||'\u2014')}</td><td class="wrap noprint"><button class="small" data-action="ptm-edit" data-id="${esc(s.id)}">${x.r?'Update':'Record PTM'}</button>${!x.done&&wa?` <button class="small" data-action="wa" data-url="${esc(wa)}">WhatsApp</button>`:''}</td></tr>`}).join('');
+ const ov=isAdmin()&&db.classes.length>1?`<section class="card"><h3>All classes \u00b7 ${esc(monthLabel(cyc))}</h3>${db.classes.map(c=>{const st=classStudents(c.id),d=st.filter(s=>{const r=PTM.rec[s.id+'|'+cyc];return r&&r.status==='Done'}).length,pc=st.length?Math.round(d*100/st.length):0;
+  return`<div class="classrow"><div><b>${esc(c.name)}</b><small>${d} of ${st.length} parents met</small></div><div style="text-align:right">${pill(pc+'%',pc>=80?'green':pc>=40?'amber':'red')} <button class="small noprint" data-action="ptm-class" data-id="${esc(c.id)}">Open</button></div></div>`}).join('')}</section>`:'';
+ return header('PTM tracker','Parent-teacher meetings: who is done, who is left and who needs one most.',`<button data-action="ptm-csv">Download CSV</button><button data-action="ptm-print">Print</button>`)+ptmErr()+
+ `<section class="card"><div class="toolbar">${isAdmin()?`<label>Class<select id="ptmClass">${db.classes.map(c=>`<option value="${esc(c.id)}" ${c.id===cid?'selected':''}>${esc(c.name)}</option>`).join('')}</select></label>`:''}<label>PTM month<input type="month" id="ptmMonth" value="${esc(cyc)}"></label><label>Show<select id="ptmFilter">${[['pending','Not done yet'],['priority','Needs PTM most'],['done','Done'],['all','Everyone']].map(o=>`<option value="${o[0]}" ${f===o[0]?'selected':''}>${o[1]}</option>`).join('')}</select></label></div>
+ <div class="stats">${stat('Students',all.length,esc(clsName(cid)))}${stat('PTM done',done,esc(monthLabel(cyc)))}${stat('Remaining',left,'Not yet met')}${stat('High priority',high,'Remaining and urgent')}</div></section>`+ov+
+ `<section class="card"><h3>${esc(clsName(cid))} \u00b7 ${esc(monthLabel(cyc))}</h3><p class="muted">The app suggests priority from attendance, unpaid fees and test marks. Press \u201cRecord PTM\u201d after you meet the parent.</p>${table(['Roll','Student','Why PTM is needed','PTM status','Last PTM done',''],trs)}</section>`};
+function ptmForm(s){
+ const cyc=ptmCyc(),r=PTM.rec[s.id+'|'+cyc]||null,k=ptmRisk(s,ptmCtx(s.classId));
+ openModal(esc(s.name)+' \u00b7 PTM',`<p class="muted">${esc(clsName(s.classId))} \u00b7 Roll ${esc(s.roll)} \u00b7 ${esc(s.father||'')} \u00b7 ${esc(monthLabel(cyc))}</p>${k.tags.length?`<div class="ptmtags" style="margin-bottom:10px">${k.tags.map(t=>pill(t[0],t[1])).join(' ')}</div>`:''}
+ <div class="formgrid">${sel('pstatus','Result',PTM_ST.map(x=>[x,x]),r?r.status:'Done')}${fld('pdate','Meeting date',(r&&r.date)||today(),'date','max="'+today()+'"')}${sel('pmet','Met with',['Father','Mother','Guardian','Other'].map(x=>[x,x]),(r&&r.met)||'Father')}<label class="full">Notes (what was discussed, what the parent agreed to)<textarea id="f_pnote" rows="4" maxlength="1000">${esc(r?r.note:'')}</textarea></label></div>`+formBtns('Save')+(r?`<p style="margin-top:10px"><button type="button" class="small danger" data-action="ptm-clear" data-id="${esc(s.id)}">Remove this record</button></p>`:''),
+ async()=>{const st=g('pstatus'),o={student_id:s.id,cycle:cyc,status:st,held_on:g('pdate')||null,met_with:st==='Done'?g('pmet'):null,note:(($('#f_pnote').value)||'').trim().slice(0,1000)||null,held_by:me.id,held_by_name:String(me.name||'').slice(0,80),updated_at:new Date().toISOString()};
+  if(!PTM_ST.includes(st))return alert('Choose a result.');
+  if(o.held_on&&!/^\d{4}-\d{2}-\d{2}$/.test(o.held_on))return alert('Enter a valid date.');
+  if(o.held_on&&o.held_on>today())return alert('The meeting date cannot be in the future.');
+  const w=await sb.from('ptm_records').upsert(o,{onConflict:'student_id,cycle'});
+  if(w.error)return alert(w.error.message+(/ptm_records|schema cache|relation/i.test(w.error.message)?'\n\nRun the file 4-PATCH-16-PTM.sql once in Supabase (SQL Editor).':''));
+  closeModal();await reloadPtm();toast('PTM saved.')})}
+async function ptmAct(a,b){
+ const id=b.dataset.id;
+ switch(a){
+  case'ptm-print':return window.print();
+  case'ptm-class':if(isAdmin()&&db.classes.some(c=>c.id===id)){ui.ptmClass=id;render();window.scrollTo(0,0)}return;
+  case'ptm-edit':{const s=db.students.find(x=>x.id===id);if(!s||!canStudent(s))return;ptmForm(s);return}
+  case'ptm-clear':{const s=db.students.find(x=>x.id===id);if(!s||!canStudent(s))return;const r=PTM.rec[id+'|'+ptmCyc()];if(!r)return;
+   if(!confirm('Remove this PTM record? The student will show as not done again.'))return;
+   const d=await sb.from('ptm_records').delete().eq('id',r.id);if(d.error)return alert(d.error.message);
+   closeModal();await reloadPtm();toast('PTM record removed.');return}
+  case'ptm-csv':{const cid=curClass('ptmClass');if(!cid)return;const cyc=ptmCyc(),all=ptmList(cid,cyc);
+   const head=['Roll','Student','Father','Phone','Priority','Reasons','PTM status','Meeting date','Met with','Notes','Recorded by'];
+   const body=all.map(x=>[x.s.roll,x.s.name,x.s.father||'',x.s.phone||'',x.level,x.tags.map(t=>t[0]).join('; '),x.r?x.r.status:'Not yet',x.r?x.r.date:'',x.r?x.r.met:'',x.r?x.r.note:'',x.r?x.r.by:''].map(csvq).join(','));
+   download('ptm-'+String(clsName(cid)).replace(/[^\w-]+/g,'_')+'-'+cyc+'.csv','\ufeff'+head.map(csvq).join(',')+'\n'+body.join('\n'),'text/csv');return}
+ }}
 
 /* ===== Urdu / English toggle (text only, layout unchanged) ===== */
 const UR={'Home':'ہوم','Students':'طلبہ','Teachers':'اساتذہ','Accounts':'اکاؤنٹس','Classes':'کلاسیں','Attendance':'حاضری','Fees':'فیس','Diary':'ڈائری','Payroll':'تنخواہیں','Expenses':'اخراجات','Reports':'رپورٹس','Audit Log':'آڈٹ لاگ','Backup':'بیک اپ','Results':'نتائج','Notices':'نوٹس','Dashboard':'ڈیش بورڈ',
@@ -1638,7 +1733,7 @@ const UR={'Home':'ہوم','Students':'طلبہ','Teachers':'اساتذہ','Accou
 'Print':'پرنٹ','Close':'بند کریں','Cancel':'منسوخ','Save':'محفوظ کریں','Search':'تلاش','All classes':'تمام کلاسیں','Download CSV':'CSV ڈاؤنلوڈ','Print grid (landscape)':'گرڈ پرنٹ کریں (لینڈسکیپ)','Daily attendance grid':'روزانہ حاضری کا گرڈ',
 'Absent 3+ days in a row':'مسلسل 3 یا زیادہ دن غیر حاضر','Fee not paid':'فیس ادا نہیں','WhatsApp':'واٹس ایپ','No phone':'فون نہیں','No records yet.':'ابھی کوئی ریکارڈ نہیں۔','days absent':'دن غیر حاضر',
 'Collected this month':'اس ماہ وصولی','Outstanding (this month)':'باقی (اس ماہ)','Unpaid students':'فیس نہ دینے والے طلبہ','Active students':'فعال طلبہ','Entries':'اندراجات','Payment':'ادائیگی','Unpaid list (CSV)':'فیس نہ دینے والوں کی فہرست (CSV)','CSV export':'CSV ایکسپورٹ',
-'Announcements from the school and from your child\u2019s class teacher.':'اسکول اور آپ کے بچے کے کلاس ٹیچر کی طرف سے اعلانات۔','Choose':'منتخب کریں','Loading…':'لوڈ ہو رہا ہے…'};
+'Announcements from the school and from your child\u2019s class teacher.':'اسکول اور آپ کے بچے کے کلاس ٹیچر کی طرف سے اعلانات۔','Choose':'منتخب کریں','PTM':'پی ٹی ایم','PTM tracker':'پی ٹی ایم ٹریکر','Not yet':'ابھی نہیں','Record PTM':'پی ٹی ایم درج کریں','Update':'اپ ڈیٹ','Remaining':'باقی','PTM done':'پی ٹی ایم مکمل','Open PTM':'پی ٹی ایم کھولیں','Done':'مکمل','Why PTM is needed':'پی ٹی ایم کی وجہ','PTM status':'پی ٹی ایم کی حالت','Last PTM done':'آخری پی ٹی ایم','Loading…':'لوڈ ہو رہا ہے…'};
 const UR_RE=[[/^Welcome, (.*)\.$/,(m,n)=>'خوش آمدید، '+n+'۔'],[/^(.*) · (Admin|Manager|Teacher|Parent)(.*)$/,(m,a,r,c)=>a+' · '+UR[r]+c]];
 let LANG='en';try{LANG=localStorage.getItem('smhs_lang')==='ur'?'ur':'en'}catch(e){}
 const trMap=new WeakMap();
