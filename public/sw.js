@@ -1,7 +1,7 @@
 // Fast start: the app pages always come fresh from the network (if the network is slow, the saved copy is used after 3.5 s).
 // The big library and the icons come from the saved copy at once and are refreshed quietly in the background.
 // Supabase calls (other origin) are never touched, so data is never served stale.
-const C='smhs-school-v1';
+const C='smhs-school-v3';
 self.addEventListener('install',()=>self.skipWaiting());
 self.addEventListener('activate',e=>e.waitUntil(caches.keys().then(k=>Promise.all(k.filter(x=>x!==C).map(x=>caches.delete(x)))).then(()=>self.clients.claim())));
 const put=(r,res)=>{if(res&&res.ok){const cp=res.clone();caches.open(C).then(c=>c.put(r,cp))}return res};

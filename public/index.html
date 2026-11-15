@@ -309,6 +309,32 @@ input[type=checkbox]{width:20px;height:20px;min-height:0!important;padding:0;box
 
 .rbars{display:grid;gap:10px}.rb{display:grid;grid-template-columns:minmax(70px,130px) 1fr 52px;align-items:center;gap:4px 10px;font-size:13px}.rb span{font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.rb small{grid-column:2/4;color:var(--muted);font-size:11px}.rt{height:12px;border-radius:99px;background:#EDF0F3;box-shadow:var(--inset);overflow:hidden}.rt i{display:block;height:100%;border-radius:99px;background:var(--grad)}.rt i.g{background:#2BB38A}.rt i.a{background:#F2A93B}.rt i.r{background:#E5533D}.rb b{text-align:right}
 .rcols{display:flex;gap:14px;justify-content:space-around;height:200px}.rc{flex:1;max-width:120px;display:grid;grid-template-rows:auto 1fr auto;gap:6px;justify-items:center}.rcw{width:100%;display:flex;align-items:flex-end;background:#EDF0F3;border-radius:14px;box-shadow:var(--inset);overflow:hidden}.rcw i{width:100%;border-radius:14px 14px 0 0;background:var(--grad)}.rc span{font-size:12px;font-weight:700;text-align:center}.rgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;margin:10px 0 16px}@media(max-width:760px){.rgrid{grid-template-columns:1fr}}
+
+.attgrid{border-collapse:collapse;font-size:12px;width:100%}
+.attgrid th,.attgrid td{padding:4px 5px;text-align:center;border:1px solid var(--line,#d5dae0)}
+.attgrid .gname{text-align:left;white-space:nowrap;position:sticky;left:0}
+.attgrid .gd{min-width:22px}.attgrid .gt{font-weight:700;background:rgba(127,127,127,.08)}
+.attgrid .gc{font-weight:700;min-width:22px}.attgrid .gA{color:#c0392b}.attgrid .gL{color:#b9770e}.attgrid .gLv{color:#2471a3}.attgrid .gP{color:#1e8449}
+@media print{
+ body:not(.print-grid) .gridcard{display:none!important}
+ body.print-grid .sumcard,body.print-grid .pagehead{display:none!important}
+ body.print-grid .gridcard .pagehead{display:block!important}
+ .attgrid{font-size:9px}.attgrid th,.attgrid td{padding:2px 2px;border:1px solid #000!important;color:#000!important}
+ .attgrid .gname{position:static}.attgrid .gA,.attgrid .gL,.attgrid .gLv,.attgrid .gP{color:#000!important}
+ .attgrid .gA{background:#ddd}
+ .gridcard .tablewrap{overflow:visible!important}
+}
+
+.qa{display:inline-flex;gap:4px;margin-right:8px;vertical-align:middle}
+.qb{min-width:36px;padding:7px 8px;font-weight:700}
+.qb.on.qPresent{background:#1e8449!important;color:#fff!important}.qb.on.qAbsent{background:#c0392b!important;color:#fff!important}.qb.on.qLate{background:#d68910!important;color:#fff!important}.qb.on.qLeave{background:#2471a3!important;color:#fff!important}
+.attcal{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;max-width:420px;margin:14px 0 6px}
+.attcal .ch{text-align:center;font-size:11px;color:var(--muted)}
+.attcal .cd{aspect-ratio:1;border-radius:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:12px;background:rgba(127,127,127,.08)}
+.attcal .cd.e{background:none}.attcal .cd b{font-size:11px}
+.attcal .cP{background:#d4efdf;color:#1e8449}.attcal .cA{background:#f5b7b1;color:#922b21}.attcal .cL{background:#fdebd0;color:#935116}.attcal .cLv{background:#d6eaf8;color:#1b4f72}
+body.ur{font-family:'Noto Nastaliq Urdu','Noto Naskh Arabic','Jameel Noori Nastaleeq','Segoe UI',Tahoma,Arial,sans-serif;line-height:1.75}
+body.ur button,body.ur input,body.ur select{font-family:inherit}
 </style></head><body>
 <div id="busybar"></div>
 <div id="splash"><div class="logo" role="img" aria-label="Scholars Model High School logo"></div><b id="splashName">Scholars Model High School</b><div class="spin"></div><small id="splashMsg">Loading…</small></div>
@@ -319,12 +345,13 @@ input[type=checkbox]{width:20px;height:20px;min-height:0!important;padding:0;box
 <div class="orb"></div><div class="floaties"><div class="fcard f1"><small>Attendance today</small><b>96%</b><i style="--w:96%"></i></div><div class="fcard f2"><small>Fees collected</small><b>Rs. 148,000</b><i style="--w:78%"></i></div><div class="fcard f3"><small>Active students</small><b>412</b><i style="--w:64%"></i></div></div></section>
 <div class="logincard"><div class="logo" role="img" aria-label="Scholars Model High School logo"></div><h1>Scholars Model High School</h1><p class="muted" id="loginSub"></p>
 <div id="loginForm"></div><p class="err" id="lerr" role="alert"></p>
+<p style="text-align:center;margin-top:10px"><button class="small" type="button" data-action="lang" data-notr>اردو</button></p>
 </div>
 </div></div>
 
 <div class="app hidden" id="app">
 <header class="top"><div class="brand"><div class="logo" role="img" aria-label="Scholars Model High School logo"></div><div><h1 id="brandName">Scholars Model High School</h1><small id="todayLabel"></small></div></div>
-<div class="who"><span id="whoami"></span><button class="small" data-action="change-pw">Change password</button><button class="small danger" data-action="logout">Logout</button></div></header>
+<div class="who"><span id="whoami"></span><button class="small" data-action="lang" data-notr>اردو</button><button class="small" data-action="change-pw">Change password</button><button class="small danger" data-action="logout">Logout</button></div></header>
 <div class="layout"><aside class="sidebar" id="sidebar"></aside><main class="mainpanel" id="view"></main></div>
 </div>
 
@@ -452,6 +479,38 @@ function assignTeacher(cid,tid){const c=cls(cid);if(!c)return 'Class not found.'
  if(tid){const t=db.users.find(u=>u.id===tid&&u.role==='teacher'&&u.active);if(!t)return 'Invalid or inactive teacher.';
   const other=db.classes.find(x=>x.teacherId===tid&&x.id!==cid);if(other)return t.name+' is already the teacher of '+other.name+'. A teacher can have only one class.'}
  c.teacherId=tid||'';repair();return ''}
+function gridDays(cid,m,st){const from=m+'-01',to=m+'-31';return Object.keys(db.attendance).filter(d=>d>=from&&d<=to&&st.some(s=>db.attendance[d][s.id])).sort()}
+function attGrid(cid,m,st){
+ const from=m+'-01',to=m+'-31';
+ const days=gridDays(cid,m,st);
+ if(!days.length)return `<section class="card gridcard"><h3>Daily attendance grid</h3><p class="muted">No attendance recorded for this class in ${esc(m)}.</p></section>`;
+ const CODE={Present:'P',Absent:'A',Late:'L',Leave:'Lv'};
+ const head=days.map(d=>`<th class="gd">${+d.slice(8)}</th>`).join('');
+ const rows=st.map(s=>{const a=attStats(s.id,cid,from,to);
+  const cells=days.map(d=>{const v=db.attendance[d][s.id];return `<td class="gc g${v&&CODE[v]?CODE[v]:'x'}">${v&&CODE[v]?CODE[v]:''}</td>`}).join('');
+  return `<tr><td>${esc(s.roll)}</td><td class="gname"><b>${esc(s.name)}</b></td>${cells}<td class="gt">${a.Present}</td><td class="gt">${a.Absent}</td><td class="gt">${a.Late}</td><td class="gt">${a.Leave}</td><td class="gt">${a.rate===null?'—':a.rate+'%'}</td></tr>`}).join('');
+ return `<section class="card gridcard"><div class="pagehead" style="margin-bottom:8px"><div><h3>Daily attendance grid</h3><p class="muted">${esc(clsName(cid))} · ${esc(m)} · only days with recorded attendance are shown. P = Present, A = Absent, L = Late, Lv = Leave, blank = not marked.</p></div><div class="actions noprint"><button class="primary" data-action="print-grid">Print grid (landscape)</button><button data-action="export-grid">Download CSV</button></div></div>
+ <div class="tablewrap"><table class="attgrid"><thead><tr><th>Roll</th><th>Student</th>${head}<th class="gt">P</th><th class="gt">A</th><th class="gt">L</th><th class="gt">Lv</th><th class="gt">%</th></tr></thead><tbody>${rows}</tbody></table></div></section>`}
+
+function waLink(phone,msg){const n=normPhone(phone);if(!n)return '';const intl=n.startsWith('03')?'92'+n.slice(1):n.replace(/^\+/,'');return 'https://wa.me/'+intl+'?text='+encodeURIComponent(msg)}
+function absentStreaks(cid,min){min=min||3;const out=[],st=classStudents(cid);
+ const days=Object.keys(db.attendance).filter(d=>db.finalized[d+'|'+cid]).sort().reverse().slice(0,30);
+ st.forEach(x=>{let n=0;for(const d of days){const v=db.attendance[d][x.id];if(!v||v==='Unmarked')continue;if(v==='Absent')n++;else break}if(n>=min)out.push({s:x,n,cid})});return out}
+function absentAlert(cids){const rows=[];cids.forEach(c=>absentStreaks(c).forEach(x=>rows.push(x)));if(!rows.length)return '';rows.sort((a,b)=>b.n-a.n);
+ const items=rows.slice(0,15).map(({s:x,n,cid})=>{const wa=waLink(x.phone,'Assalam o Alaikum. '+x.name+' ('+clsName(cid)+') pichle '+n+' din se school nahi aaya/aayi. Khairiyat hai? - '+SCHOOL());
+  return `<div class="classrow"><div><b>${esc(x.name)}</b><small>${esc(clsName(cid))} · Roll ${esc(x.roll)}${x.father?' · '+esc(x.father):''}</small></div><div style="text-align:right">${pill(n+' days absent','red')} ${wa?`<button class="small noprint" data-action="wa" data-url="${esc(wa)}">WhatsApp</button>`:''}</div></div>`}).join('');
+ return `<section class="card"><h3>⚠ Absent 3+ days in a row</h3>${items}${rows.length>15?'<p class="muted">First 15 shown.</p>':''}</section>`}
+function defaultersCard(){const m=month();
+ const list=activeStudents().filter(x=>!isSettled(x,m)).sort((x,y)=>clsName(x.classId).localeCompare(clsName(y.classId))||x.roll-y.roll);
+ const rows=list.slice(0,100).map(x=>{const wa=waLink(x.phone,'Assalam o Alaikum. '+(x.father?x.father+' sahib/sahiba, ':'')+x.name+' ('+clsName(x.classId)+') ki '+monthLabel(m)+' ki fee '+money(feeDue(x,m))+' abhi baqi hai. Meherbani karke ada kar dein. Shukriya. - '+SCHOOL());
+  return `<tr><td>${esc(clsName(x.classId))}</td><td>${x.roll}</td><td><b>${esc(x.name)}</b></td><td>${esc(x.father||'—')}</td><td>${esc(x.phone||'—')}</td><td>${money(feeDue(x,m))}</td><td class="noprint">${wa?`<button class="small" data-action="wa" data-url="${esc(wa)}">WhatsApp</button>`:'<span class="muted">No phone</span>'}</td></tr>`}).join('');
+ return `<section class="card"><h3>Fee not paid · ${esc(monthLabel(m))} (${list.length})</h3>${table(['Class','Roll','Student','Father','Phone','Fee due',''],rows)}${list.length>100?'<p class="muted">First 100 shown. Use “Unpaid list (CSV)” for the full list.</p>':''}</section>`}
+function qaButtons(x){const C={Present:'P',Absent:'A',Late:'L',Leave:'Lv'};return `<div class="qa">${Object.keys(C).map(v=>`<button type="button" class="small qb q${v}" data-action="att-set" data-id="${x.id}" data-v="${v}" aria-label="${v} ${esc(x.name)}">${C[v]}</button>`).join('')}</div>`}
+function syncQA(){document.querySelectorAll('select[data-att-id]').forEach(sel=>{document.querySelectorAll('.qb[data-id="'+CSS.escape(sel.dataset.attId)+'"]').forEach(b=>b.classList.toggle('on',b.dataset.v===sel.value))})}
+function attCal(x,m){if(!/^\d{4}-\d{2}$/.test(m))return '';const [y,mo]=m.split('-').map(Number),n=new Date(y,mo,0).getDate(),off=(new Date(y,mo-1,1).getDay()+6)%7;
+ const C={Present:'P',Absent:'A',Late:'L',Leave:'Lv'};let cells='';for(let i=0;i<off;i++)cells+='<div class="cd e"></div>';
+ for(let d=1;d<=n;d++){const k=m+'-'+pad(d),v=db.finalized[k+'|'+x.classId]&&db.attendance[k]&&db.attendance[k][x.id],c=v&&C[v];cells+=`<div class="cd ${c?'c'+c:''}"><span>${d}</span>${c?`<b>${c}</b>`:''}</div>`}
+ return `<div class="attcal">${['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].map(t=>`<div class="ch">${t}</div>`).join('')}${cells}</div><p class="muted">P = Present · A = Absent · L = Late · Lv = Leave · empty = no record</p>`}
 function attStats(sid,cid,from,to){const r={Present:0,Absent:0,Late:0,Leave:0};
  for(const d in db.attendance){if(d<from||d>to)continue;const v=db.attendance[d][sid];if(v&&r[v]!==undefined)r[v]++}
  const den=r.Present+r.Absent+r.Late;r.rate=den?Math.round(r.Present*100/den):null;return r}
@@ -521,6 +580,7 @@ function classOverview(cid){
  const recent=db.diary.filter(x=>x.classId===cid).sort((a,b)=>b.date.localeCompare(a.date)).slice(0,5);
  return `<div class="stats">${stat('Students',st.length,esc(c.name))}${stat('Class teacher',esc(teacherName(c.teacherId)),'One teacher per class')}${stat('Attendance today',att,t)}${stat('Diary today',dt,'Published entries')}</div>
  <div class="actions" style="margin-bottom:14px"><button class="primary" data-page="attendance" data-cid="${cid}">Take attendance</button><button data-action="add-diary" data-cid="${cid}">＋ Write diary</button><button data-page="reports" data-cid="${cid}">Class report</button><button data-page="students" data-cid="${cid}">All students</button></div>
+ ${absentAlert([cid])}
  <div class="twocol"><section class="card"><h3>Students (${st.length})</h3>${table(['Roll','Name','Parent'],st.slice(0,8).map(s=>`<tr><td>${s.roll}</td><td><b>${esc(s.name)}</b></td><td>${esc(s.father)}</td></tr>`).join(''))}${st.length>8?`<p class="muted">First 8 shown. Use "All students" to see the rest.</p>`:''}</section>
  <section class="card"><h3>Class diary (recent)</h3>${recent.length?recent.map(x=>`<div class="classrow"><div><b>${esc(x.subject)}</b><small>${esc(x.date)} · ${esc(x.homework).slice(0,80)}</small></div>${pill(x.status,x.status==='Published'?'green':'amber')}</div>`).join(''):'<p class="muted">No diary written yet.</p>'}</section></div>`}
 
@@ -538,6 +598,7 @@ dashboard(){
  (noT.length?`<div class="notice">⚠ ${noT.length} class(es) have no teacher assigned: ${esc(noT.map(c=>c.name).join(', '))}. Assign one on the Classes page.</div>`:'')+
  (freeT.length?`<div class="notice">ℹ ${freeT.length} teacher(s) have no class yet: ${esc(freeT.map(u=>u.name).join(', '))}.</div>`:'')+
  `<div class="stats">${stat('Active students',st.length,'All classes')}${stat('Teachers',teacherList().filter(u=>u.active).length,'Active')}${stat('Classes',db.classes.length,finN+' submitted attendance today')}${stat('Fees (this month)',money(collected),month())}</div>
+ ${absentAlert(db.classes.map(c=>c.id))}
  <section class="card"><h3>Classes</h3>${rows||'<p class="muted">No classes.</p>'}</section>`},
 
 students(){
@@ -565,7 +626,7 @@ attendance(){
  if(ui.attDate>today())ui.attDate=today();
  const d=ui.attDate,st=classStudents(cid),rec=db.attendance[d]||{},fin=db.finalized[d+'|'+cid],locked=!isAdmin()&&(fin||d!==today());
  const cnt={Present:0,Absent:0,Late:0,Leave:0,Unmarked:0};st.forEach(s=>cnt[rec[s.id]||'Unmarked']++);
- const rows=st.map(s=>`<tr><td>${s.roll}</td><td><b>${esc(s.name)}</b></td><td>${locked?statusPill(rec[s.id]||'Unmarked'):`<select data-att-id="${s.id}" aria-label="Attendance ${esc(s.name)}">${STATUSES.map(x=>`<option ${(rec[s.id]||'Unmarked')===x?'selected':''}>${x}</option>`).join('')}</select>`}</td></tr>`).join('');
+ const rows=st.map(s=>`<tr><td>${s.roll}</td><td><b>${esc(s.name)}</b></td><td>${locked?statusPill(rec[s.id]||'Unmarked'):`${qaButtons(s)}<select data-att-id="${s.id}" aria-label="Attendance ${esc(s.name)}">${STATUSES.map(x=>`<option ${(rec[s.id]||'Unmarked')===x?'selected':''}>${x}</option>`).join('')}</select>`}</td></tr>`).join('');
  const recentRows=Object.keys(db.attendance).sort().reverse().map(dd=>{const c={Present:0,Absent:0,Late:0,Leave:0};let any=false;st.forEach(s=>{const v=db.attendance[dd][s.id];if(v&&c[v]!==undefined){c[v]++;any=true}});return any?`<tr><td>${dd}</td><td>${c.Present}</td><td>${c.Absent}</td><td>${c.Late}</td><td>${c.Leave}</td><td>${db.finalized[dd+'|'+cid]?pill('✓ Submitted','green'):pill('Legacy draft','amber')}</td><td><button class="small" data-action="att-open" data-date="${dd}">Open</button></td></tr>`:''}).filter(Boolean).slice(0,10).join('');
  const btns=locked?'':fin?`<button class="primary" data-action="att-correct">Correct attendance (admin)</button>`:`<button data-action="all-present">Mark all Present</button><button class="primary" data-action="att-submit">Submit attendance</button>`;
  return header('Attendance','Submitted once per class per day. After submission only the administrator can correct it, with a recorded reason.',btns)+
@@ -584,6 +645,7 @@ fees(){
   return `<tr><td>${esc(f.date)}</td><td>${esc(f.receipt)}</td><td><b>${esc(s?s.name:(f.studentName||'Unknown'))}</b></td><td>${esc(s?clsName(s.classId):'')}</td><td>${esc(f.month)}</td><td>${money(f.amount)}</td><td>${esc(f.method)}</td><td>${f.type==='reversal'?pill('Reversal','red')+' '+esc(f.reason||''):rev?pill('Reversed','red'):`${pill('Paid in full','green')} <button class="small danger" data-action="reverse-fee" data-id="${f.id}">Reverse</button>`}${f.type==='payment'?` <button class="small" data-action="fee-receipt" data-id="${f.id}">Receipt</button>`:''}</td></tr>`}).join('');
  return header('Fees','One full payment per student per month. Payments cannot be edited or deleted; a mistaken one can only be reversed (with a reason) and stays in the audit trail.',`<button class="primary" data-action="record-fee">＋ Payment</button><button data-action="export-fees">CSV export</button><button data-action="export-unpaid">Unpaid list (CSV)</button>`)+
  `<div class="stats">${stat('Collected this month',money(db.fees.filter(f=>f.month===m).reduce((a,f)=>a+f.amount,0)),m)}${stat('Outstanding (this month)',money(due),'Unpaid students x their monthly fee')}${stat('Entries',db.fees.length,'Payments + reversals')}${stat('Unpaid students',activeStudents().filter(s=>!isSettled(s,m)).length,'Waived students not counted')}</div>
+ ${defaultersCard()}
  <section class="card">${table(['Date','Receipt','Student','Class','Month','Amount','Method','Status'],rows)}${pager(all.length,ui.feePage,size,'feePage')}</section>`},
 
 diary(){
@@ -623,9 +685,10 @@ reports(){
  const rows=st.map(s=>{const a=attStats(s.id,cid,from,to);const low=a.rate!==null&&a.rate<75;
   return `<tr><td>${s.roll}</td><td><b>${esc(s.name)}</b></td><td>${a.Present}</td><td>${a.Absent}</td><td>${a.Late}</td><td>${a.Leave}</td><td>${a.rate===null?'—':pill((low?'⚠ ':'✓ ')+a.rate+'%',low?'red':'green')}</td>${isAdmin()?`<td>${isWaived(s)?pill('Waived','blue'):money(feeDue(s,m))}</td>`:''}<td class="noprint"><button class="small" data-action="student-report" data-id="${s.id}">Student report</button></td></tr>`}).join('');
  return header('Class report',`${esc(clsName(cid))} · ${esc(m)}`,`<button class="primary" onclick="window.print()">Print</button>`)+
- `<section class="card"><div class="toolbar">${classSelect('repClass','repClass')}<label>Month<input type="month" id="repMonth" value="${esc(m)}"></label></div>
+ `<section class="card sumcard"><div class="toolbar">${classSelect('repClass','repClass')}<label>Month<input type="month" id="repMonth" value="${esc(m)}"></label></div>
  <p class="muted">Days recorded: <b>${fd+dd}</b> (${fd} submitted, ${dd} not submitted). Attendance % = Present ÷ (Present + Absent + Late). Leave is counted separately. Unmarked is excluded.</p>${dd?'<div class="notice">Some days have attendance that was never submitted (old drafts). The administrator can open them on the Attendance page and submit them to lock them.</div>':''}
- ${table(['Roll','Student','Present','Absent','Late','Leave','Attendance %'].concat(isAdmin()?['Fee due']:[]).concat(['']),rows)}</section>`},
+ ${table(['Roll','Student','Present','Absent','Late','Leave','Attendance %'].concat(isAdmin()?['Fee due']:[]).concat(['']),rows)}</section>
+ ${attGrid(cid,m,st)}`},
 
 audit(){
  const all=db.audit.slice().reverse(),size=30,pc=Math.max(1,Math.ceil(all.length/size));ui.auditPage=Math.min(Math.max(1,ui.auditPage),pc);
@@ -657,7 +720,7 @@ p_attendance(){
  days.forEach(d=>{const v=db.attendance[d][s.id];if(c[v]!==undefined)c[v]++});
  const den=c.Present+c.Absent+c.Late,rate=den?Math.round(c.Present*100/den)+'%':'—';
  return header('Attendance',esc(s.name)+' · '+esc(m))+`<section class="card"><div class="toolbar">${kidSelect()}<label>Month<input type="month" id="repMonth" value="${esc(m)}"></label></div>
- <div class="stats">${stat('Present',c.Present)}${stat('Absent',c.Absent)}${stat('Late',c.Late)}${stat('Attendance',rate)}</div>${table(['Date','Status'],days.map(d=>`<tr><td>${esc(d)}</td><td>${statusPill(db.attendance[d][s.id])}</td></tr>`).join(''))}</section>`},
+ <div class="stats">${stat('Present',c.Present)}${stat('Absent',c.Absent)}${stat('Late',c.Late)}${stat('Attendance',rate)}</div>${attCal(s,m)}${table(['Date','Status'],days.map(d=>`<tr><td>${esc(d)}</td><td>${statusPill(db.attendance[d][s.id])}</td></tr>`).join(''))}</section>`},
 
 p_fees(){
  const s=curKid();if(!s)return header('Fees','')+noKid();
@@ -1061,7 +1124,7 @@ function render(){
  $('#todayLabel').textContent=new Date().toLocaleDateString('en-PK',{weekday:'long',day:'numeric',month:'short',year:'numeric'});
  const v=$('#view'),changed=render.last!==page;
  v.innerHTML=pages[page]();
- if(page==='attendance')applyAttDraft();
+ if(page==='attendance'){applyAttDraft();syncQA()}
  if(changed){render.last=page;v.classList.remove('enter','flipin');void v.offsetWidth;
   v.querySelectorAll('.pagehead,.notice,.stat,.card,.classrow').forEach((el,i)=>el.style.setProperty('--i',Math.min(i,12)));
   v.classList.add('enter','flipin');assemble(v);clearTimeout(render.ft);render.ft=setTimeout(()=>v.classList.remove('flipin','enter'),1700)}
@@ -1071,6 +1134,7 @@ function handleAction(a,b){
  const id=b.dataset.id;
  if(a.startsWith('res-')){if(!me)return;Promise.resolve(resAct(a,b)).catch(e=>alert((e&&e.message)||'Something went wrong.'));return}
  if(a==='close-modal')return closeModal();
+ if(a==='lang')return setLang();
  if(a==='submit-modal'){if(!modalSubmit||modalBusy)return;const fn=modalSubmit;modalBusy=true;b.classList.add('loading');Promise.resolve().then(()=>fn()).catch(e=>alert((e&&e.message)||'Something went wrong.')).finally(()=>{modalBusy=false;b.classList.remove('loading')});return}
  if(!me)return;
  if(isParent()&&!PARENT_OK.has(a))return deny(a);
@@ -1105,7 +1169,16 @@ function handleAction(a,b){
  case'export-teachers':audit('export','teachers csv');save();download('teachers.csv','Name,Username,Phone,Class,Salary,Status\n'+teacherList().map(t=>[t.name,t.username,t.phone,t.classId?clsName(t.classId):'',t.salary,t.active?'Active':'Inactive'].map(csvq).join(',')).join('\n'),'text/csv');break;
  case'restore-student':{const s=db.students.find(x=>x.id===id);if(s){if(db.students.some(x=>x.id!==s.id&&x.status==='Active'&&x.classId===s.classId&&x.roll===s.roll))return alert('This roll number already exists in the class. Change the roll number via Edit first.');s.status='Active';s.leftDate='';s.leftReason='';audit('student.restore',s.name);save();render()}break}
  case'student-report':studentReport(id);break;
- case'print-report':$('#app').classList.add('printing-modal');window.print();setTimeout(()=>$('#app').classList.remove('printing-modal'),500);break;
+ case'wa':{const u=String(b.dataset.url||'');if(u.startsWith('https://wa.me/'))window.open(u,'_blank','noopener');break}
+case'att-set':{const sel=document.querySelector('select[data-att-id="'+CSS.escape(id)+'"]');if(sel&&STATUSES.includes(b.dataset.v)){sel.value=b.dataset.v;attDraftSave();syncQA()}break}
+case'export-grid':{const cid=curClass('repClass'),m=ui.repMonth||month(),st=classStudents(cid),days=gridDays(cid,m,st);if(!days.length){toast('No attendance recorded for this month.');break}
+ const C={Present:'P',Absent:'A',Late:'L',Leave:'Lv'};
+ const head=['Roll','Student'].concat(days.map(d=>String(+d.slice(8))),['Present','Absent','Late','Leave','Attendance %']);
+ const body=st.map(x=>{const a=attStats(x.id,cid,m+'-01',m+'-31');return [x.roll,x.name].concat(days.map(d=>C[db.attendance[d][x.id]]||''),[a.Present,a.Absent,a.Late,a.Leave,a.rate===null?'':a.rate]).map(csvq).join(',')});
+ if(isAdmin()){audit('export','attendance grid csv');save()}
+ download('attendance-grid-'+String(clsName(cid)).replace(/[^\w-]+/g,'_')+'-'+m+'.csv','\ufeff'+head.map(csvq).join(',')+'\n'+body.join('\n'),'text/csv');break}
+case'print-grid':{const st=document.createElement('style');st.id='gridPage';st.textContent='@page{size:A4 landscape;margin:8mm}';document.head.appendChild(st);document.body.classList.add('print-grid');const undo=()=>{document.body.classList.remove('print-grid');const x=document.getElementById('gridPage');if(x)x.remove();window.removeEventListener('afterprint',undo)};window.addEventListener('afterprint',undo);setTimeout(()=>{try{window.print()}catch(e){undo()}},50);break}
+case'print-report':$('#app').classList.add('printing-modal');window.print();setTimeout(()=>$('#app').classList.remove('printing-modal'),500);break;
  case'import-parents':importForm();break;
  case'import-template':{const fc=impForced();download('students-template.csv',fc?'admission_no,student_name,father_name,phone,monthly_fee,roll\nADM-0001,Ali Khan,Ahmed Khan,03001234567,3000,1\nADM-0002,Sara Khan,Ahmed Khan,03001234567,3000,2\n':'admission_no,student_name,father_name,class,phone,monthly_fee,roll\nADM-0001,Ali Khan,Ahmed Khan,Class 1,03001234567,3000,1\nADM-0002,Sara Khan,Ahmed Khan,Class 3,03001234567,3500,2\n','text/csv');break}
  case'slips-csv':if(lastCreds){audit('export','parent login list csv');save();download('parent-logins-'+today()+'.csv','Parent,Username,Temporary password,Children\n'+lastCreds.map(c=>[c.name,c.username,c.pw,c.kids.join('; ')].map(csvq).join(',')).join('\n'),'text/csv')}break;
@@ -1121,7 +1194,7 @@ function handleAction(a,b){
  case'edit-teacher':{const t=db.users.find(x=>x.id===id&&x.role==='teacher');if(t)teacherForm(t);break}
  case'add-class':classForm();break;
  case'edit-class':{const c=cls(id);if(c)classForm(c);break}
- case'all-present':document.querySelectorAll('[data-att-id]').forEach(x=>x.value='Present');attDraftSave();toast('All set to Present. Change any exceptions, then press "Submit attendance".');break;
+ case'all-present':document.querySelectorAll('[data-att-id]').forEach(x=>x.value='Present');attDraftSave();syncQA();toast('All set to Present. Change any exceptions, then press "Submit attendance".');break;
  case'att-submit':case'att-correct':{
   const d=$('#attDate').value,cid=curClass('attClass');
   if(!cid||!canClass(cid))return deny(a);
@@ -1219,7 +1292,7 @@ document.addEventListener('keydown',e=>{lastAct=Date.now();const open=$('#modalb
    else if(!e.shiftKey&&a===last){e.preventDefault();first.focus()}}}});
 document.addEventListener('input',e=>{if(e.target.id==='stuSearch'){ui.stuQ=e.target.value;ui.stuPage=1;$('#stuResults').innerHTML=studentResults();assemble($('#stuResults'))}});
 document.addEventListener('change',e=>{const t=e.target,i=t.id;
- if(t.dataset&&t.dataset.attId!==undefined)attDraftSave();
+ if(t.dataset&&t.dataset.attId!==undefined){attDraftSave();syncQA()}
  if(i==='attDate'){ui.attDate=t.value;render()}
  else if(i==='attClass'){ui.attClass=t.value;render()}
  else if(i==='diaryClass'){ui.diaryClass=t.value;ui.diaryPage=1;render()}
@@ -1545,6 +1618,40 @@ document.addEventListener('change',e=>{const t=e.target;if(!me)return;
  if(t.id==='resClass'){ui.resClass=t.value;ui.resExam='';render()}
  else if(t.id==='resTerm'){ui.resTerm=t.value;render()}
  else if(t.classList&&t.classList.contains('ra')){const i=document.querySelector('.rm[data-sid="'+t.dataset.sid+'"]');if(i){i.disabled=t.checked;if(t.checked)i.value=''}}});
+
+/* ===== Urdu / English toggle (text only, layout unchanged) ===== */
+const UR={'Home':'ہوم','Students':'طلبہ','Teachers':'اساتذہ','Accounts':'اکاؤنٹس','Classes':'کلاسیں','Attendance':'حاضری','Fees':'فیس','Diary':'ڈائری','Payroll':'تنخواہیں','Expenses':'اخراجات','Reports':'رپورٹس','Audit Log':'آڈٹ لاگ','Backup':'بیک اپ','Results':'نتائج','Notices':'نوٹس','Dashboard':'ڈیش بورڈ',
+'Change password':'پاسورڈ تبدیل کریں','Logout':'لاگ آؤٹ','Admin':'ایڈمن','Manager':'منیجر','Teacher':'استاد','Parent':'والدین','ADMIN':'ایڈمن','MANAGER':'منیجر','TEACHER':'استاد','PARENT':'والدین',
+'Username':'یوزر نیم','Password':'پاسورڈ','Sign in':'لاگ ان','Login':'لاگ ان','Show':'دکھائیں','Hide':'چھپائیں','Please wait…':'براہ کرم انتظار کریں…',
+'My children':'میرے بچے','Class':'کلاس','Class teacher':'کلاس ٹیچر','Today':'آج','Not marked yet':'ابھی درج نہیں','Full report':'مکمل رپورٹ','Paid':'ادا شدہ','Unpaid':'ادا نہیں','Waived':'معاف','Paid in full':'مکمل ادا','Reversed':'منسوخ شدہ','Reversal':'واپسی',
+'Present':'حاضر','Absent':'غیر حاضر','Late':'دیر سے','Leave':'رخصت','Unmarked':'درج نہیں','Submitted':'جمع شدہ','Mon':'پیر','Tue':'منگل','Wed':'بدھ','Thu':'جمعرات','Fri':'جمعہ','Sat':'ہفتہ','Sun':'اتوار',
+'Date':'تاریخ','Status':'حالت','Roll':'رول نمبر','Student':'طالب علم','Name':'نام','Father':'والد','Phone':'فون','Month':'مہینہ','Fee':'فیس','Receipt':'رسید','Paid on':'ادائیگی کی تاریخ','Amount':'رقم','Method':'طریقہ','Subject':'مضمون','Due':'آخری تاریخ','Homework / classwork':'ہوم ورک / کلاس ورک','Daily Diary':'روزانہ ڈائری','Last 6 months':'پچھلے 6 مہینے','Payment receipts':'ادائیگی کی رسیدیں','Receipt (PDF)':'رسید (PDF)','Fee due':'باقی فیس','Attendance %':'حاضری %',
+'Take attendance':'حاضری لگائیں','Mark all Present':'سب حاضر کریں','Submit attendance':'حاضری جمع کریں','Recent attendance (this class)':'حالیہ حاضری (اس کلاس کی)','Open':'کھولیں','Student report':'طالب علم رپورٹ','Class report':'کلاس رپورٹ',
+'Print':'پرنٹ','Close':'بند کریں','Cancel':'منسوخ','Save':'محفوظ کریں','Search':'تلاش','All classes':'تمام کلاسیں','Download CSV':'CSV ڈاؤنلوڈ','Print grid (landscape)':'گرڈ پرنٹ کریں (لینڈسکیپ)','Daily attendance grid':'روزانہ حاضری کا گرڈ',
+'Absent 3+ days in a row':'مسلسل 3 یا زیادہ دن غیر حاضر','Fee not paid':'فیس ادا نہیں','WhatsApp':'واٹس ایپ','No phone':'فون نہیں','No records yet.':'ابھی کوئی ریکارڈ نہیں۔','days absent':'دن غیر حاضر',
+'Collected this month':'اس ماہ وصولی','Outstanding (this month)':'باقی (اس ماہ)','Unpaid students':'فیس نہ دینے والے طلبہ','Active students':'فعال طلبہ','Entries':'اندراجات','Payment':'ادائیگی','Unpaid list (CSV)':'فیس نہ دینے والوں کی فہرست (CSV)','CSV export':'CSV ایکسپورٹ',
+'Announcements from the school and from your child\u2019s class teacher.':'اسکول اور آپ کے بچے کے کلاس ٹیچر کی طرف سے اعلانات۔','Choose':'منتخب کریں','Loading…':'لوڈ ہو رہا ہے…'};
+const UR_RE=[[/^Welcome, (.*)\.$/,(m,n)=>'خوش آمدید، '+n+'۔'],[/^(.*) · (Admin|Manager|Teacher|Parent)(.*)$/,(m,a,r,c)=>a+' · '+UR[r]+c]];
+let LANG='en';try{LANG=localStorage.getItem('smhs_lang')==='ur'?'ur':'en'}catch(e){}
+const trMap=new WeakMap();
+function urText(v){const t=v.trim();if(!t)return null;const lw=v.match(/^\s*/)[0],tw=v.match(/\s*$/)[0];
+ if(UR[t])return lw+UR[t]+tw;
+ for(const [re,fn] of UR_RE){const m=t.match(re);if(m)return lw+fn.apply(null,m)+tw}
+ const m=t.match(/^([^A-Za-z]*)([A-Za-z](?:[A-Za-z .'’&\/()-]*[A-Za-z)])?)([^A-Za-z]*)$/);
+ if(m&&UR[m[2]])return lw+m[1]+UR[m[2]]+m[3]+tw;return null}
+function trNode(n){const v=n.nodeValue,r=trMap.get(n);
+ if(LANG==='ur'){if(r&&v===r.t)return;const u=urText(v);if(u!==null&&u!==v){trMap.set(n,{o:v,t:u});n.nodeValue=u}else if(r)trMap.delete(n)}
+ else if(r){if(v===r.t)n.nodeValue=r.o;trMap.delete(n)}}
+function trAll(root){const w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT,{acceptNode:n=>{const p=n.parentNode;return p&&!/^(SCRIPT|STYLE|TEXTAREA)$/.test(p.nodeName)&&!(p.closest&&p.closest('[data-notr]'))?1:2}});
+ const a=[];while(w.nextNode())a.push(w.currentNode);a.forEach(trNode);
+ root.querySelectorAll('[placeholder]').forEach(el=>{const ph=el.getAttribute('placeholder');
+  if(LANG==='ur'){const u=urText(ph);if(u&&u!==ph){if(el.dataset.phEn===undefined)el.dataset.phEn=ph;el.setAttribute('placeholder',u)}}
+  else if(el.dataset.phEn!==undefined){el.setAttribute('placeholder',el.dataset.phEn);delete el.dataset.phEn}})}
+function setLang(){LANG=LANG==='ur'?'en':'ur';try{localStorage.setItem('smhs_lang',LANG)}catch(e){}applyLang()}
+function applyLang(){document.body.classList.toggle('ur',LANG==='ur');document.documentElement.lang=LANG;
+ document.querySelectorAll('[data-action="lang"]').forEach(b=>b.textContent=LANG==='ur'?'English':'اردو');trAll(document.body)}
+{let raf=0;new MutationObserver(()=>{if(LANG!=='ur'||raf)return;raf=requestAnimationFrame(()=>{raf=0;trAll(document.body)})}).observe(document.body,{childList:true,subtree:true})}
+if(LANG==='ur')applyLang();
 
 })();
 if('serviceWorker' in navigator)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
